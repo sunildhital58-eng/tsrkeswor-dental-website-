@@ -159,7 +159,8 @@ body{background:#f4f6f9;overflow-x:hidden}
             </div>
           </div></div>
           <div class="col-12">
-            <button type="submit" class="btn btn-primary btn-lg px-5 w-100 w-md-auto"><i class="fas fa-save me-2"></i>Save All Settings</button>
+            <button type="submit" class="btn btn-primary btn-lg px-5"><i class="fas fa-save me-2"></i>Save All Settings</button>
+            <button type="button" class="btn btn-success btn-lg px-5 ms-2" onclick="populateFirebase()"><i class="fas fa-database me-2"></i>Populate Firebase</button>
             <span id="settings-msg" class="ms-3 text-success fw-semibold d-none">Saved!</span>
           </div>
         </div>
@@ -493,12 +494,12 @@ import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, dele
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD_UEopKeV9hSoULOs8uQbtE0zxc6aryXo",
-  authDomain: "dental-fdb54.firebaseapp.com",
-  projectId: "dental-fdb54",
-  storageBucket: "dental-fdb54.firebasestorage.app",
-  messagingSenderId: "73072316508",
-  appId: "1:73072316508:web:1a1383aa1ffec477821699"
+  authDomain: "tarkeswor-hospital.firebaseapp.com",
+  projectId: "tarkeswor-hospital",
+  storageBucket: "tarkeswor-hospital.firebasestorage.app",
+  messagingSenderId: "1012082760166",
+  appId: "1:1012082760166:web:7f1eae3749ab31a6f0de27",
+  measurementId: "G-C5660VRHRY"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -905,6 +906,43 @@ window.doChangePassword = async () => {
   } catch(e) {
     errEl.textContent=e.code==='auth/wrong-password'?'Current password is incorrect.':'Error: '+e.message;
     errEl.classList.remove('d-none');
+  }
+};
+
+// Firebase Population Function
+window.populateFirebase = async () => {
+  if (!confirm('This will populate Firebase with all website content. Continue?')) return;
+  
+  try {
+    const services = [
+      {title: "General Dentistry", description: "Routine checkups, cleanings, and fillings to keep your teeth healthy and strong.", image: "https://images.unsplash.com/photo-1588776694971-07c06b2c5e47?w=500", order: 1},
+      {title: "Cosmetic Dentistry", description: "Teeth whitening, veneers, and smile makeovers to give you a confident, beautiful smile.", image: "https://images.unsplash.com/photo-1606757226521-d92d6c3c2ca9?w=500", order: 2},
+      {title: "Orthodontics", description: "Braces and clear aligners to straighten your teeth and improve your bite.", image: "https://images.unsplash.com/photo-1606059592919-0238b124c005?w=500", order: 3},
+      {title: "Oral Surgery", description: "Tooth extractions, wisdom teeth removal, and other surgical dental procedures.", image: "https://images.unsplash.com/photo-1606755962773-d25614b4c4ea?w=500", order: 4},
+      {title: "Root Canal Treatment", description: "Comfortable, effective endodontic treatment to save your natural tooth.", image: "https://images.unsplash.com/photo-1588776694971-07c06b2c5e47?w=500", order: 5},
+      {title: "Dental Implants", description: "Permanent, natural-looking tooth replacements that restore your smile and function.", image: "https://images.unsplash.com/photo-1606059592919-0238b124c005?w=500", order: 6},
+      {title: "Pediatric Dentistry", description: "Gentle, child-friendly dental care to build healthy habits from a young age.", image: "https://images.unsplash.com/photo-1606755962773-d25614b4c4ea?w=500", order: 7},
+      {title: "Emergency Dentistry", description: "Urgent dental care for toothaches, broken teeth, and other dental emergencies.", image: "https://images.unsplash.com/photo-1588776694971-07c06b2c5e47?w=500", order: 8}
+    ];
+
+    const doctors = [
+      {name: "Dr. Tarkeswor Sharma", title: "Senior Dentist", qualification: "BDS, MDS", image: "https://images.unsplash.com/photo-1622496309379-e5b908fa7be5?w=500", order: 1},
+      {name: "Dr. Anita Shrestha", title: "Orthodontist", qualification: "BDS, MDS", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500", order: 2},
+      {name: "Dr. Bikash Thapa", title: "Oral Surgeon", qualification: "BDS, MDS", image: "https://images.unsplash.com/photo-1622496309379-e5b908fa7be5?w=500", order: 3},
+      {name: "Dr. Sita Karki", title: "Pediatric Dentist", qualification: "BDS", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500", order: 4}
+    ];
+
+    const batch = writeBatch(db);
+    
+    services.forEach(s => batch.set(doc(collection(db, "services")), s));
+    doctors.forEach(d => batch.set(doc(collection(db, "doctors")), d));
+
+    await batch.commit();
+    alert("Firebase populated successfully with services and doctors!");
+    loadServices();
+    loadDoctors();
+  } catch (error) {
+    alert("Error: " + error.message);
   }
 };
 </script>

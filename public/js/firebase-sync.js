@@ -4,12 +4,12 @@ import { getFirestore, collection, doc, getDoc, getDocs, onSnapshot, query, orde
 
 // Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC8_L_7x8Z_rU1-Q2e_J9K_zL_0B0C_1D2E",
-  authDomain: "tarkeswor-dentist.firebaseapp.com",
-  projectId: "tarkeswor-dentist",
-  storageBucket: "tarkeswor-dentist.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdefghijklmnop"
+  authDomain: "tarkeswor-hospital.firebaseapp.com",
+  projectId: "tarkeswor-hospital",
+  storageBucket: "tarkeswor-hospital.firebasestorage.app",
+  messagingSenderId: "1012082760166",
+  appId: "1:1012082760166:web:7f1eae3749ab31a6f0de27",
+  measurementId: "G-C5660VRHRY"
 };
 
 const app = initializeApp(firebaseConfig);
