@@ -488,10 +488,13 @@ body{background:#f4f6f9;overflow-x:hidden}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+<script>
+const { initializeApp } = firebase;
+const { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch } = firebase.firestore;
+const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } = firebase.auth;
 
 const firebaseConfig = {
   authDomain: "tarkeswor-hospital.firebaseapp.com",
@@ -524,20 +527,32 @@ window.closeSidebar = () => { document.getElementById('sidebar').classList.remov
 window.showForgotInfo = () => document.getElementById('forgot-info').classList.toggle('d-none');
 
 window.doLogin = async () => {
-  const pw = document.getElementById('login-pw').value;
-  const errEl = document.getElementById('login-err');
-  errEl.classList.add('d-none');
-  if (!pw) { errEl.textContent = 'Please enter password.'; errEl.classList.remove('d-none'); return; }
-  if (pw === '12345') {
-    sessionStorage.setItem('adminLoggedIn', 'true');
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-dashboard').style.display = '';
-    loadSection('settings');
-  } else {
-    errEl.textContent = 'Wrong password.';
-    errEl.classList.remove('d-none');
-    setTimeout(() => errEl.classList.add('d-none'), 5000);
+  try {
+    const pw = document.getElementById('login-pw').value;
+    const errEl = document.getElementById('login-err');
+    errEl.classList.add('d-none');
+    if (!pw) { 
+      errEl.textContent = 'Please enter password.'; 
+      errEl.classList.remove('d-none'); 
+      return; 
+    }
+    if (pw === '12345') {
+      sessionStorage.setItem('adminLoggedIn', 'true');
+      const loginScr = document.getElementById('login-screen');
+      const dashboard = document.getElementById('admin-dashboard');
+      if (loginScr) loginScr.style.display = 'none';
+      if (dashboard) dashboard.style.display = '';
+      loadSection('settings');
+    } else {
+      errEl.textContent = 'Wrong password.';
+      errEl.classList.remove('d-none');
+      setTimeout(() => errEl.classList.add('d-none'), 5000);
+    }
+  } catch (e) {
+    console.error("[v0] doLogin error:", e);
+    alert("Login error: " + e.message);
   }
+  return false;
 };
 
 window.logout = async () => { 
@@ -547,26 +562,72 @@ window.logout = async () => {
   document.getElementById('login-pw').value = '';
 };
 
+// Initialize event listeners
+function initializeEventListeners() {
+  const loginBtn = document.querySelector('button[onclick*="doLogin"]');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.doLogin === 'function') window.doLogin();
+      return false;
+    });
+  }
+  const pwInput = document.getElementById('login-pw');
+  if (pwInput) {
+    pwInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (typeof window.doLogin === 'function') window.doLogin();
+      }
+    });
+  }
+  console.log("[v0] Event listeners initialized");
+}
+
+// Setup event listeners when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeEventListeners);
+} else {
+  initializeEventListeners();
+}
+
 window.addEventListener('load', () => {
+  console.log("[v0] Page loaded, checking session...");
   if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-dashboard').style.display = '';
-    loadSection('settings');
+    const loginScr = document.getElementById('login-screen');
+    const dashboard = document.getElementById('admin-dashboard');
+    if (loginScr) loginScr.style.display = 'none';
+    if (dashboard) dashboard.style.display = '';
+    if (typeof loadSection === 'function') loadSection('settings');
   }
 });
 
 window.showSection = (name, el) => {
-  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-  document.getElementById('section-'+name).classList.add('active');
-  if (el) el.classList.add('active');
-  loadSection(name);
-  closeSidebar();
+  try {
+    document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    const sectionEl = document.getElementById('section-'+name);
+    if (sectionEl) sectionEl.classList.add('active');
+    if (el) el.classList.add('active');
+    loadSection(name);
+    closeSidebar();
+  } catch (e) {
+    console.error("[v0] showSection error:", e);
+  }
+  return false;
 };
 
 function loadSection(name) {
-  const loaders = { settings:loadSettings, banners:loadBanners, services:loadServices, features:loadFeatures, solutions:loadSolutions, gallery:loadGallery, doctors:loadDoctors, reviews:loadReviews, blog:loadBlog, bookings:loadBookings };
-  if (loaders[name]) loaders[name]();
+  try {
+    const loaders = { settings:loadSettings, banners:loadBanners, services:loadServices, features:loadFeatures, solutions:loadSolutions, gallery:loadGallery, doctors:loadDoctors, reviews:loadReviews, blog:loadBlog, bookings:loadBookings };
+    if (loaders[name] && typeof loaders[name] === 'function') {
+      loaders[name]();
+    } else {
+      console.warn("[v0] No loader for section:", name);
+    }
+  } catch (e) {
+    console.error("[v0] loadSection error for", name, ":", e);
+  }
 }
 
 async function loadSettings() {
@@ -908,6 +969,18 @@ window.doChangePassword = async () => {
     errEl.classList.remove('d-none');
   }
 };
+
+// Ensure all functions are accessible globally
+window.addEventListener('DOMContentLoaded', () => {
+  // Verify functions exist
+  const requiredFunctions = ['doLogin', 'showSection', 'logout', 'openModal', 'toggleSidebar', 'closeSidebar', 'loadSection'];
+  requiredFunctions.forEach(fn => {
+    if (typeof window[fn] !== 'function') {
+      console.warn(`[v0] Function ${fn} not found on window object`);
+    }
+  });
+  console.log('[v0] Admin panel functions loaded');
+});
 
 // Firebase Population Function
 window.populateFirebase = async () => {
