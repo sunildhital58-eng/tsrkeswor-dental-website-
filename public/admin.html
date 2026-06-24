@@ -492,35 +492,91 @@ body{background:#f4f6f9;overflow-x:hidden}
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
 <script>
-const { initializeApp } = firebase;
-const { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch } = firebase.firestore;
-const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } = firebase.auth;
+let db, auth, app;
 
-const firebaseConfig = {
-  authDomain: "tarkeswor-hospital.firebaseapp.com",
-  projectId: "tarkeswor-hospital",
-  storageBucket: "tarkeswor-hospital.firebasestorage.app",
-  messagingSenderId: "1012082760166",
-  appId: "1:1012082760166:web:7f1eae3749ab31a6f0de27",
-  measurementId: "G-C5660VRHRY"
-};
+// Initialize Firebase after libraries load
+function initializeFirebase() {
+  try {
+    if (typeof firebase === 'undefined' || !firebase.firestore || !firebase.auth) {
+      setTimeout(initializeFirebase, 50);
+      return;
+    }
+    
+    const { initializeApp } = firebase;
+    const { getFirestore } = firebase.firestore;
+    const { getAuth } = firebase.auth;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+    const firebaseConfig = {
+      authDomain: "tarkeswor-hospital.firebaseapp.com",
+      projectId: "tarkeswor-hospital",
+      storageBucket: "tarkeswor-hospital.firebasestorage.app",
+      messagingSenderId: "1012082760166",
+      appId: "1:1012082760166:web:7f1eae3749ab31a6f0de27",
+      measurementId: "G-C5660VRHRY"
+    };
+
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    console.log('[v0] Firebase initialized');
+  } catch (e) {
+    console.error('[v0] Firebase error:', e);
+    setTimeout(initializeFirebase, 50);
+  }
+}
+
+// Start initialization when page loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeFirebase);
+} else {
+  setTimeout(initializeFirebase, 100);
+}
 
 async function dbGet(colName) {
   try {
+    if (!db) throw new Error('Database not initialized');
+    const { getDocs, query, collection, orderBy } = firebase.firestore;
     const snap = await getDocs(query(collection(db, colName), orderBy('sortOrder')));
     return snap.docs.map(d => ({id: d.id, ...d.data()}));
   } catch(e) {
-    const snap = await getDocs(collection(db, colName));
-    return snap.docs.map(d => ({id: d.id, ...d.data()}));
+    try {
+      if (!db) return [];
+      const { getDocs, collection } = firebase.firestore;
+      const snap = await getDocs(collection(db, colName));
+      return snap.docs.map(d => ({id: d.id, ...d.data()}));
+    } catch(e2) {
+      console.error('[v0] dbGet error:', e2);
+      return [];
+    }
   }
 }
-async function dbAdd(col, data) { return await addDoc(collection(db, col), data); }
-async function dbUpdate(col, id, data) { await updateDoc(doc(db, col, id), data); }
-async function dbDelete(col, id) { await deleteDoc(doc(db, col, id)); }
+async function dbAdd(col, data) { 
+  try {
+    if (!db) throw new Error('Database not initialized');
+    const { addDoc, collection } = firebase.firestore;
+    return await addDoc(collection(db, col), data); 
+  } catch(e) {
+    console.error('[v0] dbAdd error:', e);
+  }
+}
+async function dbUpdate(col, id, data) { 
+  try {
+    if (!db) return;
+    const { updateDoc, doc } = firebase.firestore;
+    await updateDoc(doc(db, col, id), data); 
+  } catch(e) {
+    console.error('[v0] dbUpdate error:', e);
+  }
+}
+async function dbDelete(col, id) { 
+  try {
+    if (!db) return;
+    const { deleteDoc, doc } = firebase.firestore;
+    await deleteDoc(doc(db, col, id)); 
+  } catch(e) {
+    console.error('[v0] dbDelete error:', e);
+  }
+}
 
 window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); };
 window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); };
