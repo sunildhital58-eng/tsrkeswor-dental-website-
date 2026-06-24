@@ -452,6 +452,10 @@
         <script src="js/main.js"></script>
     <script type="module" src="js/site.js"></script>
         
+    <script type="module">
+      import { initializeFirebaseSync } from './js/firebase-sync.js';
+      document.addEventListener('DOMContentLoaded', initializeFirebaseSync);
+    </script>
     </body>
 
 </html>
