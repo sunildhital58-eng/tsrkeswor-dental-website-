@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin Panel – Tarkeswor Dentist</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+<style>
+*{box-sizing:border-box}
+body{background:#f4f6f9;overflow-x:hidden}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.sidebar{width:240px;min-height:100vh;background:#1a1a2e;color:#fff;position:fixed;top:0;left:0;z-index:1040;overflow-y:auto;transition:transform .3s ease;display:flex;flex-direction:column}
+.sidebar .brand{padding:18px 20px;font-size:1.05rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between}
+.sidebar a{display:block;padding:11px 20px;color:rgba(255,255,255,.75);text-decoration:none;transition:.2s;font-size:.88rem}
+.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,.1);color:#fff}
+.sidebar a i{width:20px;margin-right:8px}
+.sidebar-close-btn{display:none;background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;padding:0}
+.main-content{margin-left:240px;padding:24px;min-height:100vh;transition:margin-left .3s ease}
+.section-panel{display:none}.section-panel.active{display:block}
+.card{border:none;box-shadow:0 2px 8px rgba(0,0,0,.08);border-radius:12px;margin-bottom:16px}
+.card-header{background:#0d6efd;color:#fff;border-radius:12px 12px 0 0!important;padding:14px 20px;font-weight:600}
+.table-responsive{max-height:420px;overflow-y:auto}
+.img-preview{width:60px;height:45px;object-fit:cover;border-radius:6px}
+.badge-pending{background:#ffc107;color:#000}
+.badge-confirmed{background:#198754}
+.badge-cancelled{background:#dc3545}
+.modal-header{background:#0d6efd;color:#fff}
+.modal-header .btn-close{filter:invert(1)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1030}
+.banner-thumb{width:80px;height:55px;object-fit:cover;border-radius:6px}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+    .sidebar{transform:translateX(-100%)}
+    .sidebar.open{transform:translateX(0)}
+    .sidebar-close-btn{display:block}
+    .sidebar-overlay.show{display:block}
+    .main-content{margin-left:0;padding:16px}
+    .mobile-toggle{display:flex!important}
+    .table-responsive{max-height:320px}
+}
+@media (min-width: 768px) {
+    .mobile-toggle{display:none!important}
+    .sidebar-close-btn{display:none!important}
+}
+.mobile-toggle{display:none;position:fixed;top:12px;left:12px;z-index:1050;background:#0d6efd;border:none;color:#fff;border-radius:8px;padding:8px 12px;font-size:1.1rem;cursor:pointer;align-items:center;gap:8px}
+.page-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-top:4px}
+@media (max-width:767px){.page-header{padding-top:48px}}
+</style>
+</head>
+<body>
+
+<!-- Mobile toggle button -->
+<button class="mobile-toggle" onclick="toggleSidebar()">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="card" style="width:100%;max-width:400px">
+    <div class="card-header text-center">
+      <h4 class="mb-0"><i class="fas fa-tooth me-2"></i>Admin Login</h4>
+      <small>Tarkeswor Dentist Pvt. Ltd.</small>
+    </div>
+    <div class="card-body p-4">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Email</label>
+        <input type="email" id="login-email" class="form-control form-control-lg" placeholder="admin@example.com" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Password</label>
+        <input type="password" id="login-pw" class="form-control form-control-lg" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn btn-primary w-100 btn-lg" onclick="doLogin()"><i class="fas fa-sign-in-alt me-2"></i>Login</button>
+      <div id="login-err" class="alert alert-danger mt-3 d-none">Login failed. Check your email and password.</div>
+      <div class="mt-3 text-center">
+        <a href="#" class="text-primary small" onclick="showForgotInfo()"><i class="fas fa-question-circle me-1"></i>Forgot password?</a>
+      </div>
+      <div id="forgot-info" class="alert alert-info mt-3 d-none small">
+        <strong>Reset password:</strong> Go to <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> → Authentication → Users → find your account → Reset Password. You can also change it from the admin panel once logged in.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin-dashboard" style="display:none">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <span><i class="fas fa-tooth me-2"></i>Admin Panel</span>
+      <button class="sidebar-close-btn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+    </div>
+    <a href="#" class="active" onclick="showSection('settings',this)"><i class="fas fa-cog"></i>Site Settings</a>
+    <a href="#" onclick="showSection('banners',this)"><i class="fas fa-images"></i>Banners</a>
+    <a href="#" onclick="showSection('services',this)"><i class="fas fa-teeth"></i>Services</a>
+    <a href="#" onclick="showSection('features',this)"><i class="fas fa-star"></i>Why Choose Us</a>
+    <a href="#" onclick="showSection('solutions',this)"><i class="fas fa-lightbulb"></i>Solutions</a>
+    <a href="#" onclick="showSection('gallery',this)"><i class="fas fa-photo-video"></i>Gallery</a>
+    <a href="#" onclick="showSection('doctors',this)"><i class="fas fa-user-md"></i>Doctors</a>
+    <a href="#" onclick="showSection('reviews',this)"><i class="fas fa-star-half-alt"></i>Reviews</a>
+    <a href="#" onclick="showSection('blog',this)"><i class="fas fa-blog"></i>Blog</a>
+    <a href="#" onclick="showSection('bookings',this)"><i class="fas fa-calendar-check"></i>Bookings</a>
+    <a href="#" onclick="showSection('changepassword',this)"><i class="fas fa-key"></i>Change Password</a>
+    <hr style="border-color:rgba(255,255,255,.2);margin:8px 0">
+    <a href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i>View Site</a>
+    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- ===== SETTINGS ===== -->
+    <div id="section-settings" class="section-panel active">
+      <div class="page-header"><h3><i class="fas fa-cog text-primary me-2"></i>Site Settings</h3></div>
+      <form id="settings-form" onsubmit="saveSettings(event)">
+        <div class="row g-3">
+          <div class="col-12"><div class="card">
+            <div class="card-header"><i class="fas fa-id-card me-2"></i>Branding & Identity</div>
+            <div class="card-body row g-3">
+              <div class="col-md-4 col-12"><label class="form-label">Site Name</label><input class="form-control" name="site_name" placeholder="Tarkeswor Dentist Pvt. Ltd."></div>
+              <div class="col-md-4 col-12"><label class="form-label">Logo Text</label><input class="form-control" name="logo_text" placeholder="Tarkeswor Dentist"></div>
+              <div class="col-md-4 col-12"><label class="form-label">Logo Image URL</label><input class="form-control" name="logo_url" placeholder="https://...logo.png"></div>
+            </div>
+          </div></div>
+          <div class="col-12"><div class="card">
+            <div class="card-header"><i class="fas fa-info-circle me-2"></i>About Section</div>
+            <div class="card-body row g-3">
+              <div class="col-md-6 col-12"><label class="form-label">About Title</label><input class="form-control" name="about_title"></div>
+              <div class="col-md-6 col-12"><label class="form-label">Experience Badge</label><input class="form-control" name="about_experience" placeholder="15 years experience"></div>
+              <div class="col-12"><label class="form-label">About Text</label><textarea class="form-control" name="about_text" rows="3"></textarea></div>
+              <div class="col-md-6 col-12"><label class="form-label">About Image 1 URL</label><input class="form-control" name="about_image1" placeholder="img/about-1.jpg"></div>
+              <div class="col-md-6 col-12"><label class="form-label">About Image 2 URL</label><input class="form-control" name="about_image2" placeholder="img/about-2.jpg"></div>
+              <div class="col-md-4 col-12"><label class="form-label">Checkmark 1</label><input class="form-control" name="about_check1"></div>
+              <div class="col-md-4 col-12"><label class="form-label">Checkmark 2</label><input class="form-control" name="about_check2"></div>
+              <div class="col-md-4 col-12"><label class="form-label">Checkmark 3</label><input class="form-control" name="about_check3"></div>
+            </div>
+          </div></div>
+          <div class="col-12"><div class="card">
+            <div class="card-header"><i class="fas fa-address-book me-2"></i>Contact & Location</div>
+            <div class="card-body row g-3">
+              <div class="col-md-4 col-12"><label class="form-label">Phone</label><input class="form-control" name="phone" placeholder="+977 98XXXXXXXX"></div>
+              <div class="col-md-4 col-12"><label class="form-label">Email</label><input class="form-control" name="email" type="email"></div>
+              <div class="col-md-4 col-12"><label class="form-label">Address</label><input class="form-control" name="address"></div>
+              <div class="col-md-6 col-12"><label class="form-label">Google Maps URL</label><input class="form-control" name="location_url" placeholder="https://maps.google.com/..."></div>
+              <div class="col-md-6 col-12"><label class="form-label">WhatsApp Number (for bookings)</label><input class="form-control" name="whatsapp_number" placeholder="9779800000000"></div>
+            </div>
+          </div></div>
+          <div class="col-12"><div class="card">
+            <div class="card-header"><i class="fas fa-share-alt me-2"></i>Social Media</div>
+            <div class="card-body row g-3">
+              <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-facebook text-primary me-1"></i>Facebook</label><input class="form-control" name="facebook" placeholder="https://facebook.com/..."></div>
+              <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-twitter text-info me-1"></i>Twitter</label><input class="form-control" name="twitter" placeholder="https://twitter.com/..."></div>
+              <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-instagram text-danger me-1"></i>Instagram</label><input class="form-control" name="instagram" placeholder="https://instagram.com/..."></div>
+              <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-linkedin text-primary me-1"></i>LinkedIn</label><input class="form-control" name="linkedin" placeholder="https://linkedin.com/..."></div>
+            </div>
+          </div></div>
+          <div class="col-12"><div class="card">
+            <div class="card-header"><i class="fas fa-search me-2"></i>SEO</div>
+            <div class="card-body row g-3">
+              <div class="col-md-6 col-12"><label class="form-label">SEO Title</label><input class="form-control" name="seo_title"></div>
+              <div class="col-md-6 col-12"><label class="form-label">SEO Keywords</label><input class="form-control" name="seo_keywords"></div>
+              <div class="col-12"><label class="form-label">SEO Description</label><textarea class="form-control" name="seo_description" rows="2"></textarea></div>
+            </div>
+          </div></div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-lg px-5 w-100 w-md-auto"><i class="fas fa-save me-2"></i>Save All Settings</button>
+            <span id="settings-msg" class="ms-3 text-success fw-semibold d-none">Saved!</span>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== BANNERS ===== -->
+    <div id="section-banners" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-images text-primary me-2"></i>Home Banners</h3>
+        <button class="btn btn-primary" onclick="openBannerModal()"><i class="fas fa-plus me-1"></i>Add Banner</button>
+      </div>
+      <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Banners auto-slide on the homepage. Add multiple banners here. Changes appear immediately on the site.</div>
+      <div id="banners-list" class="row g-3"></div>
+    </div>
+
+    <!-- ===== SERVICES ===== -->
+    <div id="section-services" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-teeth text-primary me-2"></i>Dental Services</h3>
+        <button class="btn btn-primary" onclick="openModal('service')"><i class="fas fa-plus me-1"></i>Add Service</button>
+      </div>
+      <div class="card"><div class="card-body p-0">
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-dark"><tr><th>Image</th><th>Title</th><th>Description</th><th>Order</th><th>Actions</th></tr></thead>
+          <tbody id="services-table"></tbody>
+        </table></div>
+      </div></div>
+    </div>
+
+    <!-- ===== FEATURES ===== -->
+    <div id="section-features" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-star text-primary me-2"></i>Why Choose Us</h3>
+        <button class="btn btn-primary" onclick="openModal('feature')"><i class="fas fa-plus me-1"></i>Add Feature</button>
+      </div>
+      <div class="card"><div class="card-body p-0">
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-dark"><tr><th>Icon</th><th>Title</th><th>Description</th><th>Order</th><th>Actions</th></tr></thead>
+          <tbody id="features-table"></tbody>
+        </table></div>
+      </div></div>
+    </div>
+
+    <!-- ===== SOLUTIONS ===== -->
+    <div id="section-solutions" class="section-panel">
+      <div class="page-header"><h3><i class="fas fa-lightbulb text-primary me-2"></i>Solutions Section</h3></div>
+      <div class="card mb-4"><div class="card-header">Section Header</div>
+        <div class="card-body row g-3">
+          <div class="col-md-6 col-12"><label class="form-label">Subtitle</label><input id="sol-sub" class="form-control"></div>
+          <div class="col-md-6 col-12"><label class="form-label">Title</label><input id="sol-ttl" class="form-control"></div>
+          <div class="col-12"><label class="form-label">Description</label><textarea id="sol-dsc" class="form-control" rows="2"></textarea></div>
+          <div class="col-md-6 col-12"><label class="form-label">Video URL (YouTube embed)</label><input id="sol-vid" class="form-control" placeholder="https://www.youtube.com/embed/..."></div>
+          <div class="col-md-6 col-12"><label class="form-label">Side Image URL</label><input id="sol-img" class="form-control" placeholder="img/video-img.jpg"></div>
+          <div class="col-12"><button class="btn btn-primary" onclick="saveSolutionMeta()"><i class="fas fa-save me-1"></i>Save Header</button></div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h5 class="mb-0">Solution Items</h5>
+        <button class="btn btn-sm btn-primary" onclick="openModal('solution-item')"><i class="fas fa-plus me-1"></i>Add Item</button>
+      </div>
+      <div class="card"><div class="card-body p-0">
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-dark"><tr><th>Title</th><th>Description</th><th>Order</th><th>Actions</th></tr></thead>
+          <tbody id="solutions-table"></tbody>
+        </table></div>
+      </div></div>
+    </div>
+
+    <!-- ===== GALLERY ===== -->
+    <div id="section-gallery" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-photo-video text-primary me-2"></i>Facility Gallery</h3>
+        <button class="btn btn-primary" onclick="openModal('gallery')"><i class="fas fa-plus me-1"></i>Add Image</button>
+      </div>
+      <div id="gallery-admin-grid" class="row g-3"></div>
+    </div>
+
+    <!-- ===== DOCTORS ===== -->
+    <div id="section-doctors" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-user-md text-primary me-2"></i>Doctors</h3>
+        <button class="btn btn-primary" onclick="openModal('doctor')"><i class="fas fa-plus me-1"></i>Add Doctor</button>
+      </div>
+      <div class="row g-3" id="doctors-admin-grid"></div>
+    </div>
+
+    <!-- ===== REVIEWS ===== -->
+    <div id="section-reviews" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-star-half-alt text-primary me-2"></i>Reviews</h3>
+        <button class="btn btn-primary" onclick="openModal('review')"><i class="fas fa-plus me-1"></i>Add Review</button>
+      </div>
+      <div class="card"><div class="card-body p-0">
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-dark"><tr><th>Photo</th><th>Name</th><th>Role</th><th>Rating</th><th>Review</th><th>Actions</th></tr></thead>
+          <tbody id="reviews-table"></tbody>
+        </table></div>
+      </div></div>
+    </div>
+
+    <!-- ===== BLOG ===== -->
+    <div id="section-blog" class="section-panel">
+      <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3><i class="fas fa-blog text-primary me-2"></i>Blog Posts</h3>
+        <button class="btn btn-primary" onclick="openModal('blog')"><i class="fas fa-plus me-1"></i>Add Post</button>
+      </div>
+      <div class="card"><div class="card-body p-0">
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-dark"><tr><th>Image</th><th>Title</th><th>Author</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="blog-table"></tbody>
+        </table></div>
+      </div></div>
+    </div>
+
+    <!-- ===== BOOKINGS ===== -->
+    <div id="section-bookings" class="section-panel">
+      <div class="page-header"><h3><i class="fas fa-calendar-check text-primary me-2"></i>Appointment Bookings</h3></div>
+      <div class="card"><div class="card-body p-0">
+        <div class="table-responsive"><table class="table table-hover mb-0">
+          <thead class="table-dark"><tr><th>#</th><th>Name</th><th>Phone</th><th>Email</th><th>Date</th><th>Dept</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="bookings-table"></tbody>
+        </table></div>
+      </div></div>
+    </div>
+
+    <!-- ===== CHANGE PASSWORD ===== -->
+    <div id="section-changepassword" class="section-panel">
+      <div class="page-header"><h3><i class="fas fa-key text-primary me-2"></i>Change Password</h3></div>
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-6">
+          <div class="card">
+            <div class="card-header"><i class="fas fa-lock me-2"></i>Set New Admin Password</div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">New Password</label>
+                <input type="password" id="new-pw" class="form-control" placeholder="Enter new password (min 6 chars)">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Confirm New Password</label>
+                <input type="password" id="confirm-pw" class="form-control" placeholder="Re-enter new password">
+              </div>
+              <button class="btn btn-primary w-100" onclick="doChangePassword()"><i class="fas fa-save me-2"></i>Update Password</button>
+              <div id="pw-msg" class="mt-3 d-none"></div>
+              <div class="alert alert-info mt-3 small">
+                <i class="fas fa-info-circle me-1"></i>After changing your password, you will need to log in again with the new password.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /admin-dashboard -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- Banner Modal -->
+<div class="modal fade" id="bannerModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="bannerModalTitle">Add Banner</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="bnr-idx">
+      <div class="mb-3"><label class="form-label">Banner Image URL <span class="text-danger">*</span></label><input id="bnr-image" class="form-control" placeholder="img/carousel-1.jpg or https://..."><small class="text-muted">Use image URL. Recommended size: 1920×700px</small></div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Subtitle (small text above title)</label><input id="bnr-subtitle" class="form-control" placeholder="Dental Care Center"></div>
+        <div class="col-md-6"><label class="form-label">Title (big heading)</label><input id="bnr-title" class="form-control" placeholder="Best Dental Care For Your Family"></div>
+      </div>
+      <div class="mb-3 mt-3"><label class="form-label">Description Text</label><textarea id="bnr-text" class="form-control" rows="2" placeholder="Professional dental services..."></textarea></div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Button Text</label><input id="bnr-btn-text" class="form-control" value="Book Appointment"></div>
+        <div class="col-md-6"><label class="form-label">Button URL</label><input id="bnr-btn-url" class="form-control" value="appointment.html"></div>
+      </div>
+      <div id="bnr-preview-wrap" class="mt-3 d-none">
+        <label class="form-label">Preview:</label>
+        <img id="bnr-preview" src="" style="width:100%;height:160px;object-fit:cover;border-radius:8px;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBanner()"><i class="fas fa-save me-1"></i>Save Banner</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Service Modal -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="serviceModalTitle">Add Service</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="svc-id">
+      <div class="mb-3"><label class="form-label">Image URL</label><input id="svc-image" class="form-control" placeholder="img/service-1.jpg"></div>
+      <div class="mb-3"><label class="form-label">Title</label><input id="svc-title" class="form-control" placeholder="General Dentistry"></div>
+      <div class="mb-3"><label class="form-label">Description</label><textarea id="svc-desc" class="form-control" rows="3"></textarea></div>
+      <div class="mb-3"><label class="form-label">Sort Order</label><input id="svc-order" class="form-control" type="number" value="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveService()">Save</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Feature Modal -->
+<div class="modal fade" id="featureModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="featureModalTitle">Add Feature</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="feat-id">
+      <div class="mb-3"><label class="form-label">Font Awesome Icon Class</label><input id="feat-icon" class="form-control" placeholder="fas fa-tooth"><small class="text-muted">e.g. fas fa-tooth, fas fa-user-md</small></div>
+      <div class="mb-3"><label class="form-label">Title</label><input id="feat-title" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Description</label><textarea id="feat-desc" class="form-control" rows="3"></textarea></div>
+      <div class="mb-3"><label class="form-label">Sort Order</label><input id="feat-order" class="form-control" type="number" value="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFeature()">Save</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Solution Item Modal -->
+<div class="modal fade" id="solutionItemModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="solItemModalTitle">Add Solution Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="solitem-id">
+      <div class="mb-3"><label class="form-label">Title</label><input id="solitem-title" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Description</label><textarea id="solitem-desc" class="form-control" rows="3"></textarea></div>
+      <div class="mb-3"><label class="form-label">Sort Order</label><input id="solitem-order" class="form-control" type="number" value="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSolutionItem()">Save</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Gallery Modal -->
+<div class="modal fade" id="galleryModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="galleryModalTitle">Add Gallery Image</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="gall-id">
+      <div class="mb-3"><label class="form-label">Image URL</label><input id="gall-url" class="form-control" placeholder="https://... or img/service-1.jpg"></div>
+      <div class="mb-3"><label class="form-label">Caption (optional)</label><input id="gall-caption" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Sort Order</label><input id="gall-order" class="form-control" type="number" value="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGallery()">Save</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Doctor Modal -->
+<div class="modal fade" id="doctorModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="doctorModalTitle">Add Doctor</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="doc-id">
+      <div class="row g-3">
+        <div class="col-md-6 col-12"><label class="form-label">Full Name</label><input id="doc-name" class="form-control" placeholder="Dr. Full Name"></div>
+        <div class="col-md-6 col-12"><label class="form-label">Avatar/Photo URL</label><input id="doc-avatar" class="form-control" placeholder="img/team-1.jpg"></div>
+        <div class="col-md-6 col-12"><label class="form-label">Category / Specialty</label><input id="doc-category" class="form-control" placeholder="General Dentistry"></div>
+        <div class="col-md-6 col-12"><label class="form-label">Level / Title</label><input id="doc-level" class="form-control" placeholder="Senior Dentist"></div>
+        <div class="col-md-4 col-12"><label class="form-label">Experience</label><input id="doc-exp" class="form-control" placeholder="10 Years"></div>
+        <div class="col-md-4 col-12"><label class="form-label">Phone</label><input id="doc-phone" class="form-control" placeholder="+977 98..."></div>
+        <div class="col-md-4 col-12"><label class="form-label">Email</label><input id="doc-email" class="form-control" type="email"></div>
+        <div class="col-12"><label class="form-label">Address</label><input id="doc-address" class="form-control"></div>
+        <div class="col-12"><label class="form-label">Bio / Detail</label><textarea id="doc-detail" class="form-control" rows="3"></textarea></div>
+        <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-facebook text-primary me-1"></i>Facebook</label><input id="doc-fb" class="form-control" placeholder="https://..."></div>
+        <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-twitter text-info me-1"></i>Twitter</label><input id="doc-tw" class="form-control" placeholder="https://..."></div>
+        <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-instagram text-danger me-1"></i>Instagram</label><input id="doc-ig" class="form-control" placeholder="https://..."></div>
+        <div class="col-md-3 col-6"><label class="form-label"><i class="fab fa-linkedin text-primary me-1"></i>LinkedIn</label><input id="doc-li" class="form-control" placeholder="https://..."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDoctor()">Save Doctor</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="reviewModalTitle">Add Review</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="rev-id">
+      <div class="mb-3"><label class="form-label">Patient Name</label><input id="rev-name" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Role</label><input id="rev-role" class="form-control" value="Patient"></div>
+      <div class="mb-3"><label class="form-label">Photo URL</label><input id="rev-image" class="form-control" placeholder="img/testimonial-img.jpg"></div>
+      <div class="mb-3"><label class="form-label">Rating (1-5)</label><input id="rev-rating" class="form-control" type="number" min="1" max="5" value="5"></div>
+      <div class="mb-3"><label class="form-label">Review Text</label><textarea id="rev-review" class="form-control" rows="4"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveReview()">Save</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Blog Modal -->
+<div class="modal fade" id="blogModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="blogModalTitle">Add Blog Post</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="blg-id">
+      <div class="mb-3"><label class="form-label">Image URL</label><input id="blg-image" class="form-control" placeholder="img/blog-1.jpg"></div>
+      <div class="mb-3"><label class="form-label">Title</label><input id="blg-title" class="form-control"></div>
+      <div class="mb-3"><label class="form-label">Excerpt (short summary)</label><textarea id="blg-excerpt" class="form-control" rows="2"></textarea></div>
+      <div class="mb-3"><label class="form-label">Content</label><textarea id="blg-content" class="form-control" rows="5"></textarea></div>
+      <div class="row g-3">
+        <div class="col-md-6 col-12"><label class="form-label">Author</label><input id="blg-author" class="form-control" value="Admin"></div>
+        <div class="col-md-6 col-12"><label class="form-label">Published Date</label><input id="blg-date" class="form-control" placeholder="June 15, 2026"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBlog()">Save Post</button>
+    </div>
+  </div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_UEopKeV9hSoULOs8uQbtE0zxc6aryXo",
+  authDomain: "dental-fdb54.firebaseapp.com",
+  projectId: "dental-fdb54",
+  storageBucket: "dental-fdb54.firebasestorage.app",
+  messagingSenderId: "73072316508",
+  appId: "1:73072316508:web:1a1383aa1ffec477821699"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+async function dbGet(colName) {
+  try {
+    const snap = await getDocs(query(collection(db, colName), orderBy('sortOrder')));
+    return snap.docs.map(d => ({id: d.id, ...d.data()}));
+  } catch(e) {
+    const snap = await getDocs(collection(db, colName));
+    return snap.docs.map(d => ({id: d.id, ...d.data()}));
+  }
+}
+async function dbAdd(col, data) { return await addDoc(collection(db, col), data); }
+async function dbUpdate(col, id, data) { await updateDoc(doc(db, col, id), data); }
+async function dbDelete(col, id) { await deleteDoc(doc(db, col, id)); }
+
+window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); };
+window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); };
+window.showForgotInfo = () => document.getElementById('forgot-info').classList.toggle('d-none');
+
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-err');
+  errEl.classList.add('d-none');
+  if (!email || !pw) { errEl.textContent = 'Please enter email and password.'; errEl.classList.remove('d-none'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+  } catch(e) {
+    errEl.textContent = 'Login failed. Check your email and password.';
+    errEl.classList.remove('d-none');
+    setTimeout(() => errEl.classList.add('d-none'), 5000);
+  }
+};
+
+window.logout = async () => { await signOut(auth); };
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = '';
+    loadSection('settings');
+  } else {
+    document.getElementById('login-screen').style.display = '';
+    document.getElementById('admin-dashboard').style.display = 'none';
+  }
+});
+
+window.showSection = (name, el) => {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  if (el) el.classList.add('active');
+  loadSection(name);
+  closeSidebar();
+};
+
+function loadSection(name) {
+  const loaders = { settings:loadSettings, banners:loadBanners, services:loadServices, features:loadFeatures, solutions:loadSolutions, gallery:loadGallery, doctors:loadDoctors, reviews:loadReviews, blog:loadBlog, bookings:loadBookings };
+  if (loaders[name]) loaders[name]();
+}
+
+async function loadSettings() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'main'));
+    const data = snap.exists() ? snap.data() : {};
+    const form = document.getElementById('settings-form');
+    for (const [k, v] of Object.entries(data)) {
+      const el = form.querySelector('[name="'+k+'"]');
+      if (el) el.value = v;
+    }
+  } catch(e) {}
+}
+
+window.saveSettings = async (e) => {
+  e.preventDefault();
+  const form = document.getElementById('settings-form');
+  const data = {};
+  form.querySelectorAll('[name]').forEach(el => { if (el.name) data[el.name] = el.value; });
+  await setDoc(doc(db, 'settings', 'main'), data, {merge: true});
+  const msg = document.getElementById('settings-msg');
+  msg.classList.remove('d-none');
+  setTimeout(() => msg.classList.add('d-none'), 3000);
+};
+
+let bannersData = [];
+
+async function loadBanners() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'main'));
+    const settings = snap.exists() ? snap.data() : {};
+    bannersData = settings.banners_data ? JSON.parse(settings.banners_data) : [];
+  } catch(e) { bannersData = []; }
+  renderBannersList();
+}
+
+function renderBannersList() {
+  const el = document.getElementById('banners-list');
+  if (!bannersData.length) {
+    el.innerHTML = '<div class="col-12"><div class="alert alert-secondary text-center"><i class="fas fa-images fa-2x d-block mb-2"></i>No banners yet. Click "Add Banner" to create your first banner.</div></div>';
+    return;
+  }
+  el.innerHTML = bannersData.map((b, idx) => `
+    <div class="col-12 col-md-6 col-lg-4"><div class="card h-100">
+      <img src="${b.image}" class="card-img-top" style="height:160px;object-fit:cover;" onerror="this.style.background='#ccc'">
+      <div class="card-body p-3"><h6 class="fw-bold mb-1">${b.title||'No title'}</h6><small class="text-muted d-block">${b.subtitle||''}</small><small class="text-secondary">${(b.text||'').substring(0,60)}</small></div>
+      <div class="card-footer d-flex gap-2 p-2">
+        <button class="btn btn-sm btn-outline-primary flex-fill" onclick="editBanner(${idx})"><i class="fas fa-edit me-1"></i>Edit</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="moveBanner(${idx},-1)" ${idx===0?'disabled':''}><i class="fas fa-arrow-up"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="moveBanner(${idx},1)" ${idx===bannersData.length-1?'disabled':''}><i class="fas fa-arrow-down"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteBanner(${idx})"><i class="fas fa-trash"></i></button>
+      </div>
+    </div></div>`).join('');
+}
+
+window.openBannerModal = (idx) => {
+  document.getElementById('bannerModalTitle').textContent = idx !== undefined ? 'Edit Banner' : 'Add Banner';
+  document.getElementById('bnr-idx').value = idx !== undefined ? idx : '';
+  if (idx !== undefined) {
+    const b = bannersData[idx];
+    document.getElementById('bnr-image').value = b.image||'';
+    document.getElementById('bnr-subtitle').value = b.subtitle||'';
+    document.getElementById('bnr-title').value = b.title||'';
+    document.getElementById('bnr-text').value = b.text||'';
+    document.getElementById('bnr-btn-text').value = b.buttonText||'Book Appointment';
+    document.getElementById('bnr-btn-url').value = b.buttonUrl||'appointment.html';
+    if (b.image) { document.getElementById('bnr-preview').src = b.image; document.getElementById('bnr-preview-wrap').classList.remove('d-none'); }
+  } else {
+    ['bnr-image','bnr-subtitle','bnr-title','bnr-text'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('bnr-btn-text').value = 'Book Appointment';
+    document.getElementById('bnr-btn-url').value = 'appointment.html';
+    document.getElementById('bnr-preview-wrap').classList.add('d-none');
+  }
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('bannerModal')).show();
+};
+window.editBanner = idx => openBannerModal(idx);
+
+window.saveBanner = async () => {
+  const idx = document.getElementById('bnr-idx').value;
+  const image = document.getElementById('bnr-image').value.trim();
+  if (!image) { alert('Please enter an image URL.'); return; }
+  const banner = { image, subtitle:document.getElementById('bnr-subtitle').value.trim(), title:document.getElementById('bnr-title').value.trim(), text:document.getElementById('bnr-text').value.trim(), buttonText:document.getElementById('bnr-btn-text').value.trim()||'Book Appointment', buttonUrl:document.getElementById('bnr-btn-url').value.trim()||'appointment.html' };
+  if (idx !== '') bannersData[parseInt(idx)] = banner; else bannersData.push(banner);
+  await setDoc(doc(db, 'settings', 'main'), {banners_data: JSON.stringify(bannersData)}, {merge:true});
+  bootstrap.Modal.getInstance(document.getElementById('bannerModal')).hide();
+  renderBannersList();
+};
+
+window.deleteBanner = async idx => {
+  if (!confirm('Delete this banner?')) return;
+  bannersData.splice(idx, 1);
+  await setDoc(doc(db, 'settings', 'main'), {banners_data: JSON.stringify(bannersData)}, {merge:true});
+  renderBannersList();
+};
+
+window.moveBanner = async (idx, dir) => {
+  const ni = idx+dir;
+  if (ni < 0 || ni >= bannersData.length) return;
+  [bannersData[idx], bannersData[ni]] = [bannersData[ni], bannersData[idx]];
+  await setDoc(doc(db, 'settings', 'main'), {banners_data: JSON.stringify(bannersData)}, {merge:true});
+  renderBannersList();
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const bnrImg = document.getElementById('bnr-image');
+  if (bnrImg) bnrImg.addEventListener('blur', function() {
+    if (this.value.trim()) { document.getElementById('bnr-preview').src = this.value.trim(); document.getElementById('bnr-preview-wrap').classList.remove('d-none'); }
+  });
+});
+
+window.openModal = type => {
+  const modals = {service:'serviceModal',feature:'featureModal','solution-item':'solutionItemModal',gallery:'galleryModal',doctor:'doctorModal',review:'reviewModal',blog:'blogModal'};
+  bootstrap.Modal.getOrCreateInstance(document.getElementById(modals[type])).show();
+};
+
+let serviceData = [];
+async function loadServices() {
+  serviceData = await dbGet('services');
+  document.getElementById('services-table').innerHTML = serviceData.length ? serviceData.map(s => `<tr>
+    <td><img src="${s.image}" class="img-preview" onerror="this.style.background='#eee'"></td>
+    <td>${s.title}</td><td>${(s.description||'').substring(0,60)}...</td><td>${s.sortOrder||0}</td>
+    <td>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="editService('${s.id}')"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('services','${s.id}',loadServices)"><i class="fas fa-trash"></i></button>
+    </td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted py-3">No services yet</td></tr>';
+}
+window.editService = id => {
+  const s = serviceData.find(x=>x.id===id);
+  if (!s) return;
+  document.getElementById('svc-id').value=id; document.getElementById('svc-image').value=s.image||''; document.getElementById('svc-title').value=s.title||''; document.getElementById('svc-desc').value=s.description||''; document.getElementById('svc-order').value=s.sortOrder||0;
+  document.getElementById('serviceModalTitle').textContent='Edit Service'; openModal('service');
+};
+window.saveService = async () => {
+  const id = document.getElementById('svc-id').value;
+  const data = {image:document.getElementById('svc-image').value, title:document.getElementById('svc-title').value, description:document.getElementById('svc-desc').value, sortOrder:parseInt(document.getElementById('svc-order').value)||0};
+  if (id) await dbUpdate('services',id,data); else await dbAdd('services',data);
+  bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
+  document.getElementById('svc-id').value=''; document.getElementById('serviceModalTitle').textContent='Add Service'; loadServices();
+};
+
+let featData = [];
+async function loadFeatures() {
+  featData = await dbGet('features');
+  document.getElementById('features-table').innerHTML = featData.length ? featData.map(f => `<tr>
+    <td><i class="${f.icon} text-primary fa-lg"></i></td>
+    <td>${f.title}</td><td>${(f.description||'').substring(0,60)}...</td><td>${f.sortOrder||0}</td>
+    <td>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="editFeature('${f.id}')"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('features','${f.id}',loadFeatures)"><i class="fas fa-trash"></i></button>
+    </td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted py-3">No features yet</td></tr>';
+}
+window.editFeature = id => {
+  const f = featData.find(x=>x.id===id);
+  if (!f) return;
+  document.getElementById('feat-id').value=id; document.getElementById('feat-icon').value=f.icon||''; document.getElementById('feat-title').value=f.title||''; document.getElementById('feat-desc').value=f.description||''; document.getElementById('feat-order').value=f.sortOrder||0;
+  document.getElementById('featureModalTitle').textContent='Edit Feature'; openModal('feature');
+};
+window.saveFeature = async () => {
+  const id = document.getElementById('feat-id').value;
+  const data = {icon:document.getElementById('feat-icon').value, title:document.getElementById('feat-title').value, description:document.getElementById('feat-desc').value, sortOrder:parseInt(document.getElementById('feat-order').value)||0};
+  if (id) await dbUpdate('features',id,data); else await dbAdd('features',data);
+  bootstrap.Modal.getInstance(document.getElementById('featureModal')).hide();
+  document.getElementById('feat-id').value=''; document.getElementById('featureModalTitle').textContent='Add Feature'; loadFeatures();
+};
+
+let solItemData = [];
+async function loadSolutions() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'solutions'));
+    const data = snap.exists() ? snap.data() : {meta:{},items:[]};
+    const meta = data.meta||{};
+    document.getElementById('sol-sub').value=meta.subtitle||''; document.getElementById('sol-ttl').value=meta.title||''; document.getElementById('sol-dsc').value=meta.description||''; document.getElementById('sol-vid').value=meta.videoUrl||''; document.getElementById('sol-img').value=meta.imageUrl||'';
+    solItemData = data.items||[];
+    document.getElementById('solutions-table').innerHTML = solItemData.length ? solItemData.map((it,idx) => `<tr>
+      <td>${it.title}</td><td>${(it.description||'').substring(0,60)}...</td><td>${idx}</td>
+      <td><button class="btn btn-sm btn-outline-primary me-1" onclick="editSolItem(${idx})"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger" onclick="deleteSolItem(${idx})"><i class="fas fa-trash"></i></button></td>
+    </tr>`).join('') : '<tr><td colspan="4" class="text-center text-muted py-3">No items yet</td></tr>';
+  } catch(e) {}
+}
+async function saveSolDoc() {
+  const meta={subtitle:document.getElementById('sol-sub').value,title:document.getElementById('sol-ttl').value,description:document.getElementById('sol-dsc').value,videoUrl:document.getElementById('sol-vid').value,imageUrl:document.getElementById('sol-img').value};
+  await setDoc(doc(db,'settings','solutions'),{meta,items:solItemData});
+}
+window.saveSolutionMeta = async () => { await saveSolDoc(); alert('Solutions header saved!'); };
+window.editSolItem = idx => {
+  const it=solItemData[idx];
+  document.getElementById('solitem-id').value=idx; document.getElementById('solitem-title').value=it.title||''; document.getElementById('solitem-desc').value=it.description||''; document.getElementById('solitem-order').value=idx;
+  document.getElementById('solItemModalTitle').textContent='Edit Solution Item'; openModal('solution-item');
+};
+window.saveSolutionItem = async () => {
+  const idx=document.getElementById('solitem-id').value;
+  const item={title:document.getElementById('solitem-title').value,description:document.getElementById('solitem-desc').value};
+  if (idx!=='') solItemData[parseInt(idx)]=item; else solItemData.push(item);
+  await saveSolDoc();
+  bootstrap.Modal.getInstance(document.getElementById('solutionItemModal')).hide();
+  document.getElementById('solitem-id').value=''; document.getElementById('solItemModalTitle').textContent='Add Solution Item'; loadSolutions();
+};
+window.deleteSolItem = async idx => { if(!confirm('Delete?'))return; solItemData.splice(idx,1); await saveSolDoc(); loadSolutions(); };
+
+let gallData = [];
+async function loadGallery() {
+  gallData = await dbGet('gallery');
+  document.getElementById('gallery-admin-grid').innerHTML = gallData.length ? gallData.map(g => `
+    <div class="col-6 col-md-3"><div class="card h-100">
+      <img src="${g.imageUrl}" class="card-img-top" style="height:140px;object-fit:cover;" onerror="this.style.background='#eee'">
+      <div class="card-body p-2"><small class="text-muted">${g.caption||''}</small></div>
+      <div class="card-footer p-1 d-flex gap-1">
+        <button class="btn btn-sm btn-outline-primary flex-fill" onclick="editGallery('${g.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-outline-danger flex-fill" onclick="deleteItem('gallery','${g.id}',loadGallery)"><i class="fas fa-trash"></i></button>
+      </div>
+    </div></div>`).join('') : '<div class="col-12"><div class="alert alert-secondary text-center">No images yet</div></div>';
+}
+window.editGallery = id => {
+  const g=gallData.find(x=>x.id===id); if(!g)return;
+  document.getElementById('gall-id').value=id; document.getElementById('gall-url').value=g.imageUrl||''; document.getElementById('gall-caption').value=g.caption||''; document.getElementById('gall-order').value=g.sortOrder||0;
+  document.getElementById('galleryModalTitle').textContent='Edit Gallery Image'; openModal('gallery');
+};
+window.saveGallery = async () => {
+  const id=document.getElementById('gall-id').value;
+  const data={imageUrl:document.getElementById('gall-url').value,caption:document.getElementById('gall-caption').value,sortOrder:parseInt(document.getElementById('gall-order').value)||0};
+  if(id) await dbUpdate('gallery',id,data); else await dbAdd('gallery',data);
+  bootstrap.Modal.getInstance(document.getElementById('galleryModal')).hide();
+  document.getElementById('gall-id').value=''; document.getElementById('galleryModalTitle').textContent='Add Gallery Image'; loadGallery();
+};
+
+let docData = [];
+async function loadDoctors() {
+  docData = await dbGet('doctors');
+  document.getElementById('doctors-admin-grid').innerHTML = docData.length ? docData.map(d => `
+    <div class="col-6 col-md-4 col-lg-3"><div class="card h-100 text-center">
+      <img src="${d.avatarUrl}" class="card-img-top" style="height:160px;object-fit:cover;" onerror="this.style.background='#eee'">
+      <div class="card-body p-3"><h6 class="mb-1">${d.name}</h6><small class="text-primary">${d.category||''}</small></div>
+      <div class="card-footer d-flex gap-1">
+        <button class="btn btn-sm btn-outline-primary flex-fill" onclick="editDoctor('${d.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('doctors','${d.id}',loadDoctors)"><i class="fas fa-trash"></i></button>
+      </div>
+    </div></div>`).join('') : '<div class="col-12"><div class="alert alert-secondary text-center">No doctors yet</div></div>';
+}
+window.editDoctor = id => {
+  const d=docData.find(x=>x.id===id); if(!d)return;
+  document.getElementById('doc-id').value=id; document.getElementById('doc-name').value=d.name||''; document.getElementById('doc-avatar').value=d.avatarUrl||''; document.getElementById('doc-category').value=d.category||''; document.getElementById('doc-level').value=d.level||''; document.getElementById('doc-exp').value=d.experience||''; document.getElementById('doc-phone').value=d.phone||''; document.getElementById('doc-email').value=d.email||''; document.getElementById('doc-address').value=d.address||''; document.getElementById('doc-detail').value=d.detail||''; document.getElementById('doc-fb').value=d.facebook||''; document.getElementById('doc-tw').value=d.twitter||''; document.getElementById('doc-ig').value=d.instagram||''; document.getElementById('doc-li').value=d.linkedin||'';
+  document.getElementById('doctorModalTitle').textContent='Edit Doctor'; openModal('doctor');
+};
+window.saveDoctor = async () => {
+  const id=document.getElementById('doc-id').value;
+  const data={name:document.getElementById('doc-name').value,avatarUrl:document.getElementById('doc-avatar').value,category:document.getElementById('doc-category').value,level:document.getElementById('doc-level').value,experience:document.getElementById('doc-exp').value,phone:document.getElementById('doc-phone').value,email:document.getElementById('doc-email').value,address:document.getElementById('doc-address').value,detail:document.getElementById('doc-detail').value,facebook:document.getElementById('doc-fb').value,twitter:document.getElementById('doc-tw').value,instagram:document.getElementById('doc-ig').value,linkedin:document.getElementById('doc-li').value,sortOrder:docData.length};
+  if(id) await dbUpdate('doctors',id,data); else await dbAdd('doctors',data);
+  bootstrap.Modal.getInstance(document.getElementById('doctorModal')).hide();
+  document.getElementById('doc-id').value=''; document.getElementById('doctorModalTitle').textContent='Add Doctor'; loadDoctors();
+};
+
+let revData = [];
+async function loadReviews() {
+  revData = await dbGet('reviews');
+  document.getElementById('reviews-table').innerHTML = revData.length ? revData.map(r => `<tr>
+    <td><img src="${r.image}" style="width:38px;height:38px;object-fit:cover;border-radius:50%;"></td>
+    <td>${r.name}</td><td>${r.role||''}</td><td>${'⭐'.repeat(r.rating||5)}</td><td>${(r.review||'').substring(0,50)}...</td>
+    <td>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="editReview('${r.id}')"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('reviews','${r.id}',loadReviews)"><i class="fas fa-trash"></i></button>
+    </td></tr>`).join('') : '<tr><td colspan="6" class="text-center text-muted py-3">No reviews yet</td></tr>';
+}
+window.editReview = id => {
+  const r=revData.find(x=>x.id===id); if(!r)return;
+  document.getElementById('rev-id').value=id; document.getElementById('rev-name').value=r.name||''; document.getElementById('rev-role').value=r.role||''; document.getElementById('rev-image').value=r.image||''; document.getElementById('rev-rating').value=r.rating||5; document.getElementById('rev-review').value=r.review||'';
+  document.getElementById('reviewModalTitle').textContent='Edit Review'; openModal('review');
+};
+window.saveReview = async () => {
+  const id=document.getElementById('rev-id').value;
+  const data={name:document.getElementById('rev-name').value,role:document.getElementById('rev-role').value,image:document.getElementById('rev-image').value,rating:parseInt(document.getElementById('rev-rating').value)||5,review:document.getElementById('rev-review').value,sortOrder:revData.length};
+  if(id) await dbUpdate('reviews',id,data); else await dbAdd('reviews',data);
+  bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+  document.getElementById('rev-id').value=''; document.getElementById('reviewModalTitle').textContent='Add Review'; loadReviews();
+};
+
+let blgData = [];
+async function loadBlog() {
+  blgData = await dbGet('blog');
+  document.getElementById('blog-table').innerHTML = blgData.length ? blgData.map(b => `<tr>
+    <td><img src="${b.image}" class="img-preview" onerror="this.style.background='#eee'"></td>
+    <td>${b.title}</td><td>${b.author||''}</td><td>${b.publishedAt||''}</td>
+    <td>
+      <button class="btn btn-sm btn-outline-primary me-1" onclick="editBlog('${b.id}')"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('blog','${b.id}',loadBlog)"><i class="fas fa-trash"></i></button>
+    </td></tr>`).join('') : '<tr><td colspan="5" class="text-center text-muted py-3">No blog posts yet</td></tr>';
+}
+window.editBlog = id => {
+  const b=blgData.find(x=>x.id===id); if(!b)return;
+  document.getElementById('blg-id').value=id; document.getElementById('blg-title').value=b.title||''; document.getElementById('blg-author').value=b.author||''; document.getElementById('blg-image').value=b.image||''; document.getElementById('blg-excerpt').value=b.excerpt||''; document.getElementById('blg-content').value=b.content||''; document.getElementById('blg-date').value=b.publishedAt||'';
+  document.getElementById('blogModalTitle').textContent='Edit Blog Post'; openModal('blog');
+};
+window.saveBlog = async () => {
+  const id=document.getElementById('blg-id').value;
+  const data={title:document.getElementById('blg-title').value,author:document.getElementById('blg-author').value,image:document.getElementById('blg-image').value,excerpt:document.getElementById('blg-excerpt').value,content:document.getElementById('blg-content').value,publishedAt:document.getElementById('blg-date').value,sortOrder:blgData.length};
+  if(id) await dbUpdate('blog',id,data); else await dbAdd('blog',data);
+  bootstrap.Modal.getInstance(document.getElementById('blogModal')).hide();
+  document.getElementById('blg-id').value=''; document.getElementById('blogModalTitle').textContent='Add Blog Post'; loadBlog();
+};
+
+async function loadBookings() {
+  try {
+    const snap = await getDocs(collection(db,'bookings'));
+    const bookings = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+    const tbody = document.getElementById('bookings-table');
+    tbody.innerHTML = bookings.length ? bookings.map(b=>`<tr>
+      <td>${b.name||''}</td><td>${b.phone||''}</td><td>${b.department||''}</td><td>${b.date||''}</td><td>${b.gender||''}</td>
+      <td><span class="badge badge-${b.status||'pending'}">${b.status||'pending'}</span></td>
+      <td>
+        <button class="btn btn-xs btn-outline-success me-1" onclick="updateBookingStatus('${b.id}','confirmed')"><i class="fas fa-check"></i></button>
+        <button class="btn btn-xs btn-outline-danger" onclick="updateBookingStatus('${b.id}','cancelled')"><i class="fas fa-times"></i></button>
+      </td></tr>`).join('') : '<tr><td colspan="7" class="text-center text-muted py-4">No bookings yet</td></tr>';
+  } catch(e) { document.getElementById('bookings-table').innerHTML='<tr><td colspan="7" class="text-center text-muted py-4">Unable to load bookings</td></tr>'; }
+}
+window.updateBookingStatus = async (id,status) => { await dbUpdate('bookings',id,{status}); loadBookings(); };
+
+window.deleteItem = async (col, id, reloader) => {
+  if(!confirm('Delete this item? This cannot be undone.'))return;
+  await dbDelete(col,id); reloader();
+};
+
+window.doChangePassword = async () => {
+  const oldPw=document.getElementById('cp-old').value;
+  const newPw=document.getElementById('cp-new').value;
+  const confirmPw=document.getElementById('cp-confirm').value;
+  const errEl=document.getElementById('cp-err');
+  const okEl=document.getElementById('cp-ok');
+  errEl.classList.add('d-none'); okEl.classList.add('d-none');
+  if(newPw!==confirmPw){errEl.textContent='New passwords do not match.';errEl.classList.remove('d-none');return;}
+  if(newPw.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.classList.remove('d-none');return;}
+  try {
+    const user=auth.currentUser;
+    const credential=EmailAuthProvider.credential(user.email,oldPw);
+    await reauthenticateWithCredential(user,credential);
+    await updatePassword(user,newPw);
+    okEl.classList.remove('d-none');
+    document.getElementById('cp-old').value=''; document.getElementById('cp-new').value=''; document.getElementById('cp-confirm').value='';
+  } catch(e) {
+    errEl.textContent=e.code==='auth/wrong-password'?'Current password is incorrect.':'Error: '+e.message;
+    errEl.classList.remove('d-none');
+  }
+};
+</script>
+</body>
+</html>
