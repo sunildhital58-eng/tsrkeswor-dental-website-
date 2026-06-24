@@ -28,22 +28,75 @@ const dataCache = {
   solutions: []
 };
 
+// Default mock data for initial display
+const DEFAULT_SERVICES = [
+  {title: "General Dentistry", description: "Routine checkups, cleanings, and fillings to keep your teeth healthy and strong.", image: "https://images.unsplash.com/photo-1588776694971-07c06b2c5e47?w=500", order: 1},
+  {title: "Cosmetic Dentistry", description: "Teeth whitening, veneers, and smile makeovers to give you a confident, beautiful smile.", image: "https://images.unsplash.com/photo-1606757226521-d92d6c3c2ca9?w=500", order: 2},
+  {title: "Orthodontics", description: "Braces and clear aligners to straighten your teeth and improve your bite.", image: "https://images.unsplash.com/photo-1606059592919-0238b124c005?w=500", order: 3},
+  {title: "Oral Surgery", description: "Tooth extractions, wisdom teeth removal, and other surgical dental procedures.", image: "https://images.unsplash.com/photo-1606755962773-d25614b4c4ea?w=500", order: 4},
+  {title: "Root Canal Treatment", description: "Comfortable, effective endodontic treatment to save your natural tooth.", image: "https://images.unsplash.com/photo-1588776694971-07c06b2c5e47?w=500", order: 5},
+  {title: "Dental Implants", description: "Permanent, natural-looking tooth replacements that restore your smile and function.", image: "https://images.unsplash.com/photo-1606059592919-0238b124c005?w=500", order: 6},
+  {title: "Pediatric Dentistry", description: "Gentle, child-friendly dental care to build healthy habits from a young age.", image: "https://images.unsplash.com/photo-1606755962773-d25614b4c4ea?w=500", order: 7},
+  {title: "Emergency Dentistry", description: "Urgent dental care for toothaches, broken teeth, and other dental emergencies.", image: "https://images.unsplash.com/photo-1588776694971-07c06b2c5e47?w=500", order: 8}
+];
+
+const DEFAULT_DOCTORS = [
+  {name: "Dr. Tarkeswor Sharma", title: "Senior Dentist", qualification: "BDS, MDS", image: "https://images.unsplash.com/photo-1622496309379-e5b908fa7be5?w=500", order: 1},
+  {name: "Dr. Anita Shrestha", title: "Orthodontist", qualification: "BDS, MDS", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500", order: 2},
+  {name: "Dr. Bikash Thapa", title: "Oral Surgeon", qualification: "BDS, MDS", image: "https://images.unsplash.com/photo-1622496309379-e5b908fa7be5?w=500", order: 3},
+  {name: "Dr. Sita Karki", title: "Pediatric Dentist", qualification: "BDS", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500", order: 4}
+];
+
 // Load settings and setup listeners
 export async function initializeFirebaseSync() {
   try {
+    console.log('[Firebase Sync] Initializing...');
+    
+    // Load default data immediately
+    dataCache.services = DEFAULT_SERVICES;
+    dataCache.doctors = DEFAULT_DOCTORS;
+    updateServicesUI();
+    updateDoctorsUI();
+    
     // Real-time listener for settings
-    onSnapshot(doc(db, 'settings', 'main'), (snapshot) => {
-      if (snapshot.exists()) {
-        dataCache.settings = snapshot.data();
-        updateSettingsUI();
+    onSnapshot(
+      doc(db, 'settings', 'main'),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          dataCache.settings = snapshot.data();
+          console.log('[Firebase Sync] Settings updated');
+          updateSettingsUI();
+        }
+      },
+      (error) => {
+        console.warn('[Firebase Sync] Settings listener error:', error.code);
       }
-    });
+    );
 
     // Real-time listener for services
-    onSnapshot(query(collection(db, 'services'), orderBy('sortOrder')), (snapshot) => {
-      dataCache.services = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-      updateServicesUI();
-    });
+    onSnapshot(
+      query(collection(db, 'services'), orderBy('order', 'asc')),
+      (snapshot) => {
+        dataCache.services = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+        console.log('[Firebase Sync] Services updated:', dataCache.services.length);
+        updateServicesUI();
+      },
+      (error) => {
+        console.warn('[Firebase Sync] Services query error (with order):', error.code);
+        // Try without ordering
+        onSnapshot(
+          collection(db, 'services'),
+          (snapshot) => {
+            dataCache.services = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+            console.log('[Firebase Sync] Services updated (no order):', dataCache.services.length);
+            updateServicesUI();
+          },
+          (error2) => {
+            console.error('[Firebase Sync] Services error (no order):', error2);
+          }
+        );
+      }
+    );
 
     // Real-time listener for banners
     onSnapshot(query(collection(db, 'banners'), orderBy('sortOrder')), (snapshot) => {
@@ -58,10 +111,20 @@ export async function initializeFirebaseSync() {
     });
 
     // Real-time listener for doctors
-    onSnapshot(query(collection(db, 'doctors'), orderBy('sortOrder')), (snapshot) => {
-      dataCache.doctors = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-      updateDoctorsUI();
-    });
+    onSnapshot(
+      query(collection(db, 'doctors'), orderBy('order', 'asc')),
+      (snapshot) => {
+        dataCache.doctors = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+        updateDoctorsUI();
+      },
+      (error) => {
+        console.error('[Firebase Sync] Doctors error:', error);
+        onSnapshot(collection(db, 'doctors'), (snapshot) => {
+          dataCache.doctors = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+          updateDoctorsUI();
+        });
+      }
+    );
 
     // Real-time listener for reviews
     onSnapshot(query(collection(db, 'reviews'), orderBy('sortOrder')), (snapshot) => {

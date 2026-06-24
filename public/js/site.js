@@ -3,12 +3,12 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, doc, getDoc, onSnapshot, addDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD_UEopKeV9hSoULOs8uQbtE0zxc6aryXo",
-  authDomain: "dental-fdb54.firebaseapp.com",
-  projectId: "dental-fdb54",
-  storageBucket: "dental-fdb54.firebasestorage.app",
-  messagingSenderId: "73072316508",
-  appId: "1:73072316508:web:1a1383aa1ffec477821699"
+  authDomain: "tarkeswor-hospital.firebaseapp.com",
+  projectId: "tarkeswor-hospital",
+  storageBucket: "tarkeswor-hospital.firebasestorage.app",
+  messagingSenderId: "1012082760166",
+  appId: "1:1012082760166:web:7f1eae3749ab31a6f0de27",
+  measurementId: "G-C5660VRHRY"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -512,7 +512,8 @@ function initBookingForm() {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+function initializeContent() {
+  console.log('[v0] Initializing content');
   // Immediately show default content in ALL sections (removes spinners)
   renderServices(DEFAULTS.services);
   renderFeatures(DEFAULTS.features);
@@ -532,4 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
   startBlogListener();
   startSolutionsListener();
   initBookingForm();
-});
+}
+
+// Initialize immediately if DOM is ready, otherwise wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeContent);
+} else {
+  // DOM is already ready (module loaded after HTML parsing)
+  setTimeout(initializeContent, 0);
+}

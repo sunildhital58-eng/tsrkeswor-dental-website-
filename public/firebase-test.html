@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Test</title>
+</head>
+<body>
+    <h1>Firebase Connection Test</h1>
+    <div id="output">Loading...</div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+          authDomain: "tarkeswor-hospital.firebaseapp.com",
+          projectId: "tarkeswor-hospital",
+          storageBucket: "tarkeswor-hospital.firebasestorage.app",
+          messagingSenderId: "1012082760166",
+          appId: "1:1012082760166:web:7f1eae3749ab31a6f0de27"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(app);
+        
+        async function testConnection() {
+            const output = document.getElementById('output');
+            try {
+                output.innerHTML = '<p>Checking Firebase collections...</p>';
+                
+                // Test services
+                const servicesSnap = await firebase.firestore.getDocs(
+                    firebase.firestore.collection(db, 'services')
+                );
+                
+                output.innerHTML += `<p>Services: ${servicesSnap.docs.length} documents</p>`;
+                servicesSnap.docs.forEach(doc => {
+                    output.innerHTML += `<pre>${JSON.stringify(doc.data(), null, 2)}</pre>`;
+                });
+                
+                // Test doctors
+                const doctorsSnap = await firebase.firestore.getDocs(
+                    firebase.firestore.collection(db, 'doctors')
+                );
+                
+                output.innerHTML += `<p>Doctors: ${doctorsSnap.docs.length} documents</p>`;
+                doctorsSnap.docs.forEach(doc => {
+                    output.innerHTML += `<pre>${JSON.stringify(doc.data(), null, 2)}</pre>`;
+                });
+                
+            } catch (error) {
+                output.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        setTimeout(testConnection, 2000);
+    </script>
+</body>
+</html>
