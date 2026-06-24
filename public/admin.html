@@ -68,21 +68,11 @@ body{background:#f4f6f9;overflow-x:hidden}
     </div>
     <div class="card-body p-4">
       <div class="mb-3">
-        <label class="form-label fw-semibold">Email</label>
-        <input type="email" id="login-email" class="form-control form-control-lg" placeholder="admin@example.com" onkeydown="if(event.key==='Enter')doLogin()">
-      </div>
-      <div class="mb-3">
         <label class="form-label fw-semibold">Password</label>
-        <input type="password" id="login-pw" class="form-control form-control-lg" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+        <input type="password" id="login-pw" class="form-control form-control-lg" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <button class="btn btn-primary w-100 btn-lg" onclick="doLogin()"><i class="fas fa-sign-in-alt me-2"></i>Login</button>
-      <div id="login-err" class="alert alert-danger mt-3 d-none">Login failed. Check your email and password.</div>
-      <div class="mt-3 text-center">
-        <a href="#" class="text-primary small" onclick="showForgotInfo()"><i class="fas fa-question-circle me-1"></i>Forgot password?</a>
-      </div>
-      <div id="forgot-info" class="alert alert-info mt-3 d-none small">
-        <strong>Reset password:</strong> Go to <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> → Authentication → Users → find your account → Reset Password. You can also change it from the admin panel once logged in.
-      </div>
+      <div id="login-err" class="alert alert-danger mt-3 d-none">Login failed. Wrong password.</div>
     </div>
   </div>
 </div>
@@ -533,30 +523,34 @@ window.closeSidebar = () => { document.getElementById('sidebar').classList.remov
 window.showForgotInfo = () => document.getElementById('forgot-info').classList.toggle('d-none');
 
 window.doLogin = async () => {
-  const email = document.getElementById('login-email').value.trim();
   const pw = document.getElementById('login-pw').value;
   const errEl = document.getElementById('login-err');
   errEl.classList.add('d-none');
-  if (!email || !pw) { errEl.textContent = 'Please enter email and password.'; errEl.classList.remove('d-none'); return; }
-  try {
-    await signInWithEmailAndPassword(auth, email, pw);
-  } catch(e) {
-    errEl.textContent = 'Login failed. Check your email and password.';
+  if (!pw) { errEl.textContent = 'Please enter password.'; errEl.classList.remove('d-none'); return; }
+  if (pw === '12345') {
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = '';
+    loadSection('settings');
+  } else {
+    errEl.textContent = 'Wrong password.';
     errEl.classList.remove('d-none');
     setTimeout(() => errEl.classList.add('d-none'), 5000);
   }
 };
 
-window.logout = async () => { await signOut(auth); };
+window.logout = async () => { 
+  sessionStorage.removeItem('adminLoggedIn');
+  document.getElementById('login-screen').style.display = '';
+  document.getElementById('admin-dashboard').style.display = 'none';
+  document.getElementById('login-pw').value = '';
+};
 
-onAuthStateChanged(auth, user => {
-  if (user) {
+window.addEventListener('load', () => {
+  if (sessionStorage.getItem('adminLoggedIn') === 'true') {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = '';
     loadSection('settings');
-  } else {
-    document.getElementById('login-screen').style.display = '';
-    document.getElementById('admin-dashboard').style.display = 'none';
   }
 });
 

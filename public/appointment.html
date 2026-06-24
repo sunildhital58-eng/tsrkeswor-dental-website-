@@ -149,41 +149,38 @@
                         <div class="appointment-form rounded p-5">
                             <p class="fs-4 text-uppercase text-primary">Get In Touch</p>
                             <h1 class="display-5 mb-4">Get Appointment</h1>
-                            <form>
+                            <form id="booking-form">
                                 <div class="row gy-3 gx-4">
                                     <div class="col-xl-6">
-                                        <input type="text" class="form-control py-3 border-primary bg-transparent text-white" placeholder="First Name">
+                                        <input type="text" id="book-name" class="form-control py-3 border-primary bg-transparent text-white" placeholder="First Name" required>
                                     </div>
                                     <div class="col-xl-6">
-                                        <input type="email" class="form-control py-3 border-primary bg-transparent text-white" placeholder="Email">
+                                        <input type="email" id="book-email" class="form-control py-3 border-primary bg-transparent text-white" placeholder="Email" required>
                                     </div>
                                     <div class="col-xl-6">
-                                        <input type="phone" class="form-control py-3 border-primary bg-transparent" placeholder="Phone">
+                                        <input type="tel" id="book-phone" class="form-control py-3 border-primary bg-transparent text-white" placeholder="Phone" required>
                                     </div>
                                     <div class="col-xl-6">
-                                        <select class="form-select py-3 border-primary bg-transparent" aria-label="Default select example">
-                                            <option selected>Your Gender</option>
-                                            <option value="1">Male</option>
-                                            <option value="2">FeMale</option>
-                                            <option value="3">Others</option>
+                                        <select id="book-gender" class="form-select py-3 border-primary bg-transparent text-white" required>
+                                            <option value="">Your Gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Others">Others</option>
                                         </select>
                                     </div>
                                     <div class="col-xl-6">
-                                        <input type="date" class="form-control py-3 border-primary bg-transparent">
+                                        <input type="date" id="book-date" class="form-control py-3 border-primary bg-transparent text-white" required>
                                     </div>
                                     <div class="col-xl-6">
-                                        <select class="form-select py-3 border-primary bg-transparent" aria-label="Default select example">
-                                            <option selected>Department</option>
-                                            <option value="1">Dental Care</option>
-                                            <option value="2">Physical Helth</option>
-                                            <option value="2">Treatments</option>
+                                        <select id="booking-dept" class="form-select py-3 border-primary bg-transparent text-white" required>
+                                            <option value="">Select Department</option>
                                         </select>
                                     </div>
                                     <div class="col-12">
-                                        <textarea class="form-control border-primary bg-transparent text-white" name="text" id="area-text" cols="30" rows="5" placeholder="Write Comments"></textarea>
+                                        <textarea id="book-comment" class="form-control border-primary bg-transparent text-white" cols="30" rows="5" placeholder="Write Comments"></textarea>
                                     </div>
                                     <div class="col-12">
-                                        <button type="button" class="btn btn-primary text-white w-100 py-3 px-5">SUBMIT NOW</button>
+                                        <button type="submit" class="btn btn-primary text-white w-100 py-3 px-5">SUBMIT NOW</button>
                                     </div>
                                 </div>
                             </form>
@@ -279,7 +276,7 @@
                         <!--/*** This template is free as long as you keep the below author’s credit link/attribution link/backlink. ***/-->
                         <!--/*** If you'd like to use the template without the below author’s credit link/attribution link/backlink, ***/-->
                         <!--/*** you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". ***/-->
-                        Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
+                        Designed By <a class="border-bottom" href="#">sunil dhital</a>
                     </div>
                 </div>
             </div>
