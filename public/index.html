@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Tarkeswor Dentist Pvt. Ltd.</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Spinner -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width:3rem;height:3rem;" role="status"><span class="sr-only">Loading...</span></div>
+    </div>
+
+    <!-- Topbar -->
+    <div class="container-fluid bg-dark px-5 d-none d-lg-block">
+        <div class="row gx-0 align-items-center" style="height:45px;">
+            <div class="col-lg-8 text-center text-lg-start mb-lg-0">
+                <div class="d-flex flex-wrap">
+                    <a id="site-address" href="#" class="text-light me-4"><i class="fas fa-map-marker-alt text-primary me-2"></i>Kathmandu, Nepal</a>
+                    <a id="site-phone" href="tel:+01234567890" class="text-light me-4"><i class="fas fa-phone-alt text-primary me-2"></i>+01234567890</a>
+                    <a id="site-email" href="mailto:info@tarkeswor.com" class="text-light me-0"><i class="fas fa-envelope text-primary me-2"></i>info@tarkeswor.com</a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center text-lg-end">
+                <div class="d-flex align-items-center justify-content-end">
+                    <a id="site-facebook" href="#" class="btn btn-light btn-square border rounded-circle nav-fill me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a id="site-twitter" href="#" class="btn btn-light btn-square border rounded-circle nav-fill me-3"><i class="fab fa-twitter"></i></a>
+                    <a id="site-instagram" href="#" class="btn btn-light btn-square border rounded-circle nav-fill me-3"><i class="fab fa-instagram"></i></a>
+                    <a id="site-linkedin" href="#" class="btn btn-light btn-square border rounded-circle nav-fill me-0"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <div class="container-fluid position-relative p-0">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white px-4 px-lg-5 py-3 py-lg-0">
+            <a href="index.html" class="navbar-brand p-0">
+                <span id="site-logo-text-container">
+                    <h1 class="text-primary m-0"><i class="fas fa-tooth me-3"></i><span id="site-logo-text">Tarkeswor Dentist</span></h1>
+                </span>
+                <img id="site-logo-img" src="" alt="Logo" style="display:none;max-height:60px;">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                <span class="fa fa-bars"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto py-0">
+                    <a href="index.html" class="nav-item nav-link active">Home</a>
+                    <a href="about.html" class="nav-item nav-link">About</a>
+                    <a href="service.html" class="nav-item nav-link">Services</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
+                        <div class="dropdown-menu m-0">
+                            <a href="appointment.html" class="dropdown-item">Appointment</a>
+                            <a href="feature.html" class="dropdown-item">Features</a>
+                            <a href="blog.html" class="dropdown-item">Our Blog</a>
+                            <a href="team.html" class="dropdown-item">Our Team</a>
+                            <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="nav-item nav-link">Contact Us</a>
+                </div>
+                <a href="appointment.html" class="btn btn-primary rounded-pill text-white py-2 px-4 flex-wrap flex-sm-shrink-0">Book Appointment</a>
+            </div>
+        </nav>
+
+        <!-- Carousel -->
+        <div id="hero-carousel" class="header-carousel owl-carousel">
+        </div>
+    </div>
+
+    <!-- Services -->
+    <div class="container-fluid service py-5">
+        <div class="container py-5">
+            <div class="section-title mb-5 wow fadeInUp" data-wow-delay="0.2s">
+                <div class="sub-style"><h4 class="sub-title px-3 mb-0">What We Do</h4></div>
+                <h1 class="display-3 mb-4">Our Dental Services By Expert Dentists</h1>
+                <p class="mb-0">We provide comprehensive dental care with the latest technology and experienced professionals dedicated to your oral health.</p>
+            </div>
+            <div id="services-grid" class="row g-4 justify-content-center">
+                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+            <div class="col-12 text-center mt-4 wow fadeInUp">
+                <a class="btn btn-primary rounded-pill text-white py-3 px-5" href="service.html">All Services</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div class="container-fluid about bg-light py-5">
+        <div class="container py-5">
+            <div id="about-section" class="row g-5 align-items-center">
+                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features / Why Choose Us -->
+    <div class="container-fluid feature py-5">
+        <div class="container py-5">
+            <div class="section-title mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="sub-style"><h4 class="sub-title px-3 mb-0">Why Choose Us</h4></div>
+                <h1 class="display-3 mb-4">Why Choose Tarkeswor Dentist?</h1>
+                <p class="mb-0">We combine expertise, technology and compassionate care to give you the best dental experience.</p>
+            </div>
+            <div id="features-grid" class="row g-4 justify-content-center">
+                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+            <div class="col-12 text-center mt-4 wow fadeInUp">
+                <a href="feature.html" class="btn btn-primary rounded-pill text-white py-3 px-5">More Details</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solutions / Booking -->
+    <div id="solutions-section" class="container-fluid appointment py-5">
+        <div class="container py-5">
+            <div class="row g-5 align-items-center">
+                <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.2">
+                    <div class="section-title text-start">
+                        <h4 class="sub-title pe-3 mb-0" id="sol-subtitle">Solutions To Your Dental Problems</h4>
+                        <h1 class="display-4 mb-4" id="sol-title">Best Quality Dental Services</h1>
+                        <p class="mb-4" id="sol-desc">We offer comprehensive dental solutions.</p>
+                        <div class="row g-4">
+                            <div class="col-sm-6">
+                                <div class="d-flex flex-column h-100">
+                                    <div id="sol-items">
+                                        <div class="mb-4"><h5 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Pain-Free Treatment</h5><p class="mb-0">Advanced anesthesia and gentle techniques.</p></div>
+                                        <div class="mb-4"><h5 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Quick Recovery</h5><p class="mb-0">Minimally invasive procedures.</p></div>
+                                    </div>
+                                    <div class="text-start mb-4">
+                                        <a href="appointment.html" class="btn btn-primary rounded-pill text-white py-3 px-5">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="video h-100">
+                                    <img id="sol-video-img" src="img/video-img.jpg" class="img-fluid rounded w-100 h-100" style="object-fit:cover;" alt="">
+                                    <button type="button" id="sol-video-btn" class="btn btn-play" data-bs-toggle="modal" data-src="https://www.youtube.com/embed/DWRcNpR6Kdc" data-bs-target="#videoModal"><span></span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.4s">
+                    <div class="appointment-form rounded p-5">
+                        <p class="fs-4 text-uppercase text-primary">Get In Touch</p>
+                        <h1 class="display-5 mb-4">Get Appointment</h1>
+                        <form id="booking-form">
+                            <div class="row gy-3 gx-4">
+                                <div class="col-xl-6">
+                                    <input id="book-name" type="text" class="form-control py-3 border-primary bg-transparent text-white" placeholder="Full Name" required>
+                                </div>
+                                <div class="col-xl-6">
+                                    <input id="book-email" type="email" class="form-control py-3 border-primary bg-transparent text-white" placeholder="Email" required>
+                                </div>
+                                <div class="col-xl-6">
+                                    <input id="book-phone" type="tel" class="form-control py-3 border-primary bg-transparent text-white" placeholder="Phone Number" required>
+                                </div>
+                                <div class="col-xl-6">
+                                    <select id="book-gender" class="form-select py-3 border-primary bg-transparent text-white">
+                                        <option value="">Your Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-xl-6">
+                                    <input id="book-date" type="date" class="form-control py-3 border-primary bg-transparent text-white">
+                                </div>
+                                <div class="col-xl-6">
+                                    <select id="booking-dept" class="form-select py-3 border-primary bg-transparent text-white">
+                                        <option value="">Select Department</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <textarea id="book-comment" class="form-control border-primary bg-transparent text-white" rows="3" placeholder="Write your message here..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary rounded-pill text-white py-3 px-5 w-100">Submit Now <i class="fab fa-whatsapp ms-2"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Video Modal -->
+        <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog"><div class="modal-content rounded-0">
+                <div class="modal-header">
+                    <h5 class="modal-title">Video</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="ratio ratio-16x9">
+                        <iframe class="embed-responsive-item" src="" id="video" allowfullscreen allow="autoplay"></iframe>
+                    </div>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- Team -->
+    <div class="container-fluid team py-5">
+        <div class="container py-5">
+            <div class="section-title mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="sub-style"><h4 class="sub-title px-3 mb-0">Meet Our Team</h4></div>
+                <h1 class="display-3 mb-4">Dental Services from Professional Dentists</h1>
+                <p class="mb-0">Our team of experienced dental professionals is dedicated to providing you with the highest quality care.</p>
+            </div>
+            <div id="doctors-grid" class="row g-4 justify-content-center">
+                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonial -->
+    <div class="container-fluid testimonial py-5 wow zoomInDown" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="section-title mb-5">
+                <div class="sub-style"><h4 class="sub-title text-white px-3 mb-0">Testimonial</h4></div>
+                <h1 class="display-3 mb-4">What Our Patients Say</h1>
+            </div>
+            <div id="reviews-carousel" class="testimonial-carousel owl-carousel">
+                <div class="testimonial-item text-center rounded p-4">
+                    <p class="fs-5 mb-4">Loading reviews...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog -->
+    <div class="container-fluid blog py-5">
+        <div class="container py-5">
+            <div class="section-title mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="sub-style"><h4 class="sub-title px-3 mb-0">Our Blog</h4></div>
+                <h1 class="display-3 mb-4">Excellent Facility and High Quality Dental Care</h1>
+                <p class="mb-0">Stay updated with the latest dental health tips and news from our expert team.</p>
+            </div>
+            <div id="blog-grid" class="row g-4 justify-content-center">
+                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="container-fluid py-5 bg-light">
+        <div class="container py-5">
+            <div class="section-title mb-5 wow fadeInUp">
+                <div class="sub-style"><h4 class="sub-title px-3 mb-0">Our Facility</h4></div>
+                <h1 class="display-3 mb-4">Our Modern Dental Facility</h1>
+            </div>
+            <div id="gallery-grid" class="row g-4 justify-content-center">
+                <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="text-white mb-4"><i class="fas fa-tooth me-3"></i><span class="footer-site-name">Tarkeswor Dentist</span></h4>
+                        <p>Professional dental care in a comfortable and modern environment. Your smile is our priority.</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-share fa-2x text-white me-2"></i>
+                            <a id="footer-facebook" class="btn-square btn btn-primary text-white rounded-circle mx-1" href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a id="footer-twitter" class="btn-square btn btn-primary text-white rounded-circle mx-1" href="#"><i class="fab fa-twitter"></i></a>
+                            <a id="footer-instagram" class="btn-square btn btn-primary text-white rounded-circle mx-1" href="#"><i class="fab fa-instagram"></i></a>
+                            <a id="footer-linkedin" class="btn-square btn btn-primary text-white rounded-circle mx-1" href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="mb-4 text-white">Quick Links</h4>
+                        <a href="about.html"><i class="fas fa-angle-right me-2"></i> About Us</a>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> Our Services</a>
+                        <a href="team.html"><i class="fas fa-angle-right me-2"></i> Our Team</a>
+                        <a href="blog.html"><i class="fas fa-angle-right me-2"></i> Our Blog</a>
+                        <a href="contact.html"><i class="fas fa-angle-right me-2"></i> Contact Us</a>
+                        <a href="appointment.html"><i class="fas fa-angle-right me-2"></i> Book Appointment</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="mb-4 text-white">Our Services</h4>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> General Dentistry</a>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> Cosmetic Dentistry</a>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> Orthodontics</a>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> Dental Implants</a>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> Root Canal</a>
+                        <a href="service.html"><i class="fas fa-angle-right me-2"></i> Emergency Dental</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-xl-3">
+                    <div class="footer-item d-flex flex-column">
+                        <h4 class="mb-4 text-white">Contact Info</h4>
+                        <a id="footer-location" href="#"><i class="fa fa-map-marker-alt me-2"></i><span id="footer-address">Kathmandu, Nepal</span></a>
+                        <a id="footer-email" href="mailto:info@tarkeswor.com"><i class="fas fa-envelope me-2"></i>info@tarkeswor.com</a>
+                        <a id="footer-phone" href="tel:+01234567890"><i class="fas fa-phone me-2"></i>+01234567890</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="container-fluid copyright py-4">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-md-0">
+                    <span class="text-white"><i class="fas fa-copyright text-light me-2"></i><span class="footer-site-name">Tarkeswor Dentist Pvt. Ltd.</span> All rights reserved.</span>
+                </div>
+                <div class="col-md-6 text-center text-md-end text-white">
+                    <a href="admin.html" class="text-white-50 small me-3"><i class="fas fa-lock me-1"></i>Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script type="module" src="js/site.js"></script>
+</body>
+</html>
