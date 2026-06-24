@@ -97,21 +97,37 @@ function updateSettingsUI() {
   const s = dataCache.settings;
   
   // Update site metadata
-  if (s.phone) document.getElementById('site-phone')?.href = 'tel:' + s.phone;
-  if (s.email) document.getElementById('site-email')?.href = 'mailto:' + s.email;
-  if (s.address) document.getElementById('site-address')?.textContent = s.address;
-  if (s.phone) document.getElementById('site-phone')?.textContent = s.phone;
-  if (s.email) document.getElementById('site-email')?.textContent = s.email;
+  const phoneEl = document.getElementById('site-phone');
+  const emailEl = document.getElementById('site-email');
+  const addressEl = document.getElementById('site-address');
+  
+  if (s.phone && phoneEl) {
+    phoneEl.href = 'tel:' + s.phone;
+    phoneEl.textContent = s.phone;
+  }
+  if (s.email && emailEl) {
+    emailEl.href = 'mailto:' + s.email;
+    emailEl.textContent = s.email;
+  }
+  if (s.address && addressEl) {
+    addressEl.textContent = s.address;
+  }
   
   // Update social links
-  if (s.facebook) document.getElementById('site-facebook')?.href = s.facebook;
-  if (s.twitter) document.getElementById('site-twitter')?.href = s.twitter;
-  if (s.instagram) document.getElementById('site-instagram')?.href = s.instagram;
-  if (s.linkedin) document.getElementById('site-linkedin')?.href = s.linkedin;
+  const facebookEl = document.getElementById('site-facebook');
+  const twitterEl = document.getElementById('site-twitter');
+  const instagramEl = document.getElementById('site-instagram');
+  const linkedinEl = document.getElementById('site-linkedin');
+  
+  if (s.facebook && facebookEl) facebookEl.href = s.facebook;
+  if (s.twitter && twitterEl) twitterEl.href = s.twitter;
+  if (s.instagram && instagramEl) instagramEl.href = s.instagram;
+  if (s.linkedin && linkedinEl) linkedinEl.href = s.linkedin;
   
   // Update site branding
   if (s.siteName) {
-    document.getElementById('site-logo-text')?.textContent = s.siteName;
+    const logoEl = document.getElementById('site-logo-text');
+    if (logoEl) logoEl.textContent = s.siteName;
     document.title = s.siteName;
   }
 }
