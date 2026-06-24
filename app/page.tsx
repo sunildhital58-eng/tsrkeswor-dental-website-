@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,35 +16,35 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link href="/html/index.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
+          <a href="/index.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
             <h3 className="font-bold text-lg mb-2">होम</h3>
             <p className="text-gray-600">मुख्य पृष्ठ हेर्नुहोस्</p>
-          </Link>
+          </a>
           
-          <Link href="/html/about.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
+          <a href="/about.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
             <h3 className="font-bold text-lg mb-2">हामीको बारेमा</h3>
             <p className="text-gray-600">हाम्रो क्लिनिकको बारेमा जान्नुहोस्</p>
-          </Link>
+          </a>
           
-          <Link href="/html/service.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
+          <a href="/service.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
             <h3 className="font-bold text-lg mb-2">सेवाहरू</h3>
             <p className="text-gray-600">हामले प्रदान गर्ने सेवाहरू देख्नुहोस्</p>
-          </Link>
+          </a>
 
-          <Link href="/html/team.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
+          <a href="/team.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
             <h3 className="font-bold text-lg mb-2">टीम</h3>
             <p className="text-gray-600">हाम्रो डाक्टरहरूलाई जान्नुहोस्</p>
-          </Link>
+          </a>
 
-          <Link href="/html/appointment.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
+          <a href="/appointment.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
             <h3 className="font-bold text-lg mb-2">अपोइन्टमेन्ट</h3>
             <p className="text-gray-600">अपोइन्टमेन्ट बुक गर्नुहोस्</p>
-          </Link>
+          </a>
 
-          <Link href="/html/contact.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
+          <a href="/contact.html" className="block p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition">
             <h3 className="font-bold text-lg mb-2">सम्पर्क</h3>
             <p className="text-gray-600">हामीलाई सम्पर्क गर्नुहोस्</p>
-          </Link>
+          </a>
         </div>
       </main>
     </div>
