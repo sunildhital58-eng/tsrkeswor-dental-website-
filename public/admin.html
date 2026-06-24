@@ -490,7 +490,7 @@ body{background:#f4f6f9;overflow-x:hidden}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
@@ -939,9 +939,10 @@ window.populateFirebase = async () => {
 
     await batch.commit();
     alert("Firebase populated successfully with services and doctors!");
-    loadServices();
-    loadDoctors();
+    if (typeof loadServices === 'function') loadServices();
+    if (typeof loadDoctors === 'function') loadDoctors();
   } catch (error) {
+    console.error("[v0] Population error:", error);
     alert("Error: " + error.message);
   }
 };
